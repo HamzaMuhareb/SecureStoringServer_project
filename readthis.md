@@ -10,6 +10,8 @@ composer install
 
 composer require laravel/passport
 
+php artisan passport:keys
+
 php artisan key:generate
 
 php artisan migrate:fresh
