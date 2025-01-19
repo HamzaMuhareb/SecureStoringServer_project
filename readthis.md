@@ -16,6 +16,8 @@ php artisan key:generate
 
 php artisan migrate:fresh
 
+php artisan db:seed --class=UserSeeder
+
 php artisan route:clear
 
 php artisan cache:clear

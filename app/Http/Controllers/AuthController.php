@@ -18,9 +18,9 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'national_id' => 'required|string|unique:users,national_id|max:15',
+            'birth_date' => 'required|date',
             'phone_number' => 'nullable|string|max:20',
         ]);
 
@@ -30,10 +30,10 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
             'password' => Hash::make($request->password),
             'national_id' => $request->national_id,
             'phone_number' => $request->phone_number,
+            'birth_date' => $request->birth_date,
             'role' => 'individual',
         ]);
 
@@ -46,8 +46,8 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
+            'national_id' => 'required|string|unique:users,national_id|max:15',
             'institution_name' => 'required|string|max:255',
             'phone_number' => 'nullable|string|max:20',
         ]);
@@ -58,10 +58,10 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'institution',
             'institution_name' => $request->institution_name,
+            'national_id' => $request->national_id,
             'phone_number' => $request->phone_number,
         ]);
 
@@ -71,16 +71,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
+            'national_id' => 'required|string|max:15',
             'password' => 'required|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error validation' => $validator->errors()], 401);
         }
 
-        $user = User::where('email', $request->email)->first();
-
+        $user = User::where('national_id', $request->national_id)->first();
+        if (!$user) {
+            return response()->json(['error' => 'not found'], 401);
+        }
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('LaravelAuthApp')->accessToken;
             return response()->json(['token' => $token], 200);

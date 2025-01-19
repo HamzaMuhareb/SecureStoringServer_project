@@ -4,12 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\InstitutionController;
+use App\Http\Controllers\CertificateController;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
+use App\Models\AuditLog;
+
 
 // Public Routes
+
+Route::get('/test',function () {return response()->json(['success' => 'yaaay'], 200);});
 Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('role:admin')->post('/register/institution', [AuthController::class, 'registerInstitution']);
 Route::post('/login', [AuthController::class, 'login']);
-
 // Protected Routes for Authenticated Users
 Route::middleware(['auth:api', 'role:individual,institution'])->group(function () {
 
@@ -36,3 +42,14 @@ Route::get('/test-scan', function () {
 
     return $process->getOutput();
 });
+
+Route::get('/get-server-cert', function () {
+    return response()->file(storage_path('ca/server.crt'), [
+        'Content-Type' => 'application/x-pem-file'
+    ]);
+});
+
+Route::middleware('role:institution')->get('/audit-logs', function () {
+    return response()->json(AuditLog::latest()->get());
+});
+

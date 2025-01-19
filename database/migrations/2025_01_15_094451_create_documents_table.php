@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('document_name');
             $table->string('document_path');
             $table->string('document_type')->nullable();
-            $table->text('signature');
+            // $table->text('signature');
             $table->timestamps();
         });
     }

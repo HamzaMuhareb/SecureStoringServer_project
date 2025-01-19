@@ -1,33 +1,22 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+return new class extends Migration {
     public function up()
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('action');
-            $table->foreignId('document_id')->nullable()->constrained('documents');
-            $table->timestamp('timestamp')->useCurrent();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('action'); // upload, download, delete, verify
+            $table->string('document_name')->nullable();
+            $table->string('status')->default('success'); // success or failure
+            $table->text('details')->nullable(); // Additional info (errors, verification results)
+            $table->timestamp('created_at')->useCurrent();
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('audit_logs');
